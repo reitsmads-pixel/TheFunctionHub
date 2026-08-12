@@ -18,6 +18,7 @@ export default function ListingEditor() {
   const [form, setForm] = useState<Vendor | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
   const [message, setMessage] = useState<{ kind: 'success' | 'error' | 'info'; text: string } | null>(
     null,
   )
@@ -69,6 +70,27 @@ export default function ListingEditor() {
     } finally {
       setUploading(false)
     }
+  }
+
+  /**
+   * Hot-linking someone else's server is fragile, but suppliers very often
+   * already have their photos on their own site, and refusing that means they
+   * upload nothing at all. We only check that it is a plausible http(s) image.
+   */
+  function addImageUrl() {
+    const url = imageUrl.trim()
+    if (!form) return
+    if (!/^https?:\/\/\S+$/i.test(url)) {
+      setMessage({ kind: 'error', text: 'That does not look like a full image address.' })
+      return
+    }
+    if (form.images.length >= tier.limits.images) {
+      setMessage({ kind: 'error', text: `Your ${tier.name} plan allows ${tier.limits.images} photos.` })
+      return
+    }
+    setForm((prev) => (prev ? { ...prev, images: [...prev.images, url] } : prev))
+    setImageUrl('')
+    setMessage(null)
   }
 
   async function persist(status: Vendor['status']) {
@@ -307,44 +329,96 @@ export default function ListingEditor() {
         </p>
 
         {form.images.length > 0 && (
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+              gap: '0.75rem',
+              marginBottom: '1.5rem',
+            }}
+          >
             {form.images.map((src, i) => (
-              <div key={src.slice(0, 40) + i} style={{ position: 'relative' }}>
+              <figure key={`${i}-${src.slice(-24)}`} style={{ position: 'relative', margin: 0 }}>
                 <img
                   src={src}
                   alt=""
-                  style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+                  style={{ width: '100%', aspectRatio: '4/5', objectFit: 'cover' }}
                 />
                 <button
                   type="button"
                   className="btn btn-danger btn-sm"
-                  style={{ position: 'absolute', top: 6, right: 6, padding: '0.2rem 0.5rem' }}
+                  style={{ position: 'absolute', top: 4, right: 4, padding: '0.15rem 0.45rem', background: '#fff' }}
                   onClick={() => set('images', form.images.filter((_, idx) => idx !== i))}
                   aria-label={`Remove photo ${i + 1}`}
                 >
                   ✕
                 </button>
-                {i === 0 && (
-                  <span className="badge badge-soft" style={{ position: 'absolute', bottom: 6, left: 6 }}>
-                    Cover
-                  </span>
+                {i > 0 && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    style={{ position: 'absolute', bottom: 4, left: 4, padding: '0.15rem 0.45rem', background: '#fff' }}
+                    onClick={() => {
+                      const next = [...form.images]
+                      next.unshift(next.splice(i, 1)[0])
+                      set('images', next)
+                    }}
+                  >
+                    Make cover
+                  </button>
                 )}
-              </div>
+                {i === 0 && (
+                  <figcaption
+                    className="status"
+                    style={{ position: 'absolute', bottom: 4, left: 4, background: '#fff', padding: '0.15rem 0.4rem' }}
+                  >
+                    Cover
+                  </figcaption>
+                )}
+              </figure>
             ))}
           </div>
         )}
 
-        <div className="field">
-          <label htmlFor="f-images">Add photos</label>
-          <input
-            id="f-images"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/avif"
-            multiple
-            disabled={uploading || form.images.length >= tier.limits.images}
-            onChange={(e) => void onUpload(e.target.files)}
-          />
-          {uploading && <span className="hint">Uploading…</span>}
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="f-images">Upload from this device</label>
+            <input
+              id="f-images"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              multiple
+              disabled={uploading || form.images.length >= tier.limits.images}
+              onChange={(e) => void onUpload(e.target.files)}
+            />
+            <span className="hint">
+              {uploading ? 'Uploading…' : 'JPG, PNG or WebP, up to 5 MB each. Large photos are resized automatically.'}
+            </span>
+          </div>
+
+          <div className="field">
+            <label htmlFor="f-image-url">Or paste an image link</label>
+            <div className="row" style={{ gap: '0.6rem', flexWrap: 'nowrap' }}>
+              <input
+                id="f-image-url"
+                type="url"
+                placeholder="https://…/photo.jpg"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                disabled={!imageUrl.trim() || form.images.length >= tier.limits.images}
+                onClick={addImageUrl}
+              >
+                Add
+              </button>
+            </div>
+            <span className="hint">
+              Useful if your photos are already on your own site. The link must end in an image file.
+            </span>
+          </div>
         </div>
 
         {tier.limits.video && (

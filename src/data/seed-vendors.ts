@@ -1,5 +1,6 @@
 import type { TierId, Vendor } from '../lib/types'
-import { initials, placeholderImage } from '../lib/placeholder'
+import { placeholderImage } from '../lib/placeholder'
+import { photosFor } from './photos'
 
 /**
  * Sample directory used in demo mode (no Firebase configured) and by
@@ -340,9 +341,12 @@ export const SEED_VENDORS: Vendor[] = SEEDS.map((seed, index) => {
     whatsapp: `27${82 + (index % 5)}${1000000 + index * 13}`,
     instagram: slug.replace(/-/g, ''),
     facebook: slug,
-    images: Array.from({ length: imageCount }, (_, i) =>
-      placeholderImage(`${slug}-${i}`, i === 0 ? initials(seed.name) : ' '),
-    ),
+    // Real photographs win; otherwise fall back to the category drawing.
+    images: photosFor(slug).length
+      ? photosFor(slug)
+      : Array.from({ length: imageCount }, (_, i) =>
+          placeholderImage(`${slug}-${i}`, seed.categories[i % seed.categories.length]),
+        ),
     videoUrl: '',
     priceFrom: seed.priceFrom,
     priceNote: seed.priceNote ?? '',

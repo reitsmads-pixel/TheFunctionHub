@@ -57,6 +57,26 @@ a "verified" badge fee, and a featured slot in a supplier newsletter.
 
 ---
 
+## Photographs
+
+Three ways an image gets onto a listing, in the order they take effect:
+
+1. **A supplier uploads one** in their dashboard. Goes to Firebase Storage,
+   resized to 1600px wide in the browser first. This is the normal path.
+2. **A supplier pastes an image link** — useful when their photos already live
+   on their own site. Stored as a plain URL.
+3. **Sample listings** read `src/data/photos.ts`, which maps a listing slug to
+   files you drop in `public/img/suppliers/`. See the README in that folder.
+
+Anything with no photograph falls back to a line drawing of its category
+(`src/lib/illustrations.ts`) on a warm neutral tile. That is a deliberate
+placeholder, not a design element — it keeps a half-populated directory looking
+intentional, and it disappears the moment a real image arrives.
+
+Only publish photographs you have the right to use. Stock imagery passed off as
+a supplier's own work is the most common reason we reject a listing, so the
+sample data ships with drawings rather than borrowed photos.
+
 ## Deploying to Netlify
 
 1. Push this repository to GitHub.

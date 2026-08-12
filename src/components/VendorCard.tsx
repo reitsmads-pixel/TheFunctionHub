@@ -7,7 +7,7 @@ import { tierOf } from '../lib/tiers'
 import { Rating } from './ui'
 
 export default function VendorCard({ vendor }: { vendor: Vendor }) {
-  const cover = vendor.images[0] || placeholderImage(vendor.slug || vendor.name)
+  const cover = vendor.images[0] || placeholderImage(vendor.slug || vendor.name, vendor.categories[0] ?? '')
   const mark = tierOf(vendor.tier).limits.badge
 
   return (

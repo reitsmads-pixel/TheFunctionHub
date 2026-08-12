@@ -98,7 +98,7 @@ export default function VendorDetail() {
     )
   }
 
-  const images = (v.images.length ? v.images : [placeholderImage(v.slug || v.name)]).slice(
+  const images = (v.images.length ? v.images : [placeholderImage(v.slug || v.name, v.categories[0] ?? '')]).slice(
     0,
     tier.limits.images,
   )
