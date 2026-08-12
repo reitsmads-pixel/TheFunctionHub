@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import EnquiryForm from '../components/EnquiryForm'
 import VendorCard from '../components/VendorCard'
-import { EmptyState, Stars, TierBadge, VerifiedBadge } from '../components/ui'
+import { EmptyState, Rating } from '../components/ui'
 import { categoryName } from '../data/taxonomy'
 import { externalUrl, rands, shortDate, telLink, whatsappLink } from '../lib/format'
 import { placeholderImage } from '../lib/placeholder'
@@ -32,7 +32,7 @@ export default function VendorDetail() {
         setVendor(found)
         void recordView(found)
         return listVendors({ category: found.categories[0] }).then((list) => {
-          if (alive) setRelated(list.filter((v) => v.id !== found.id).slice(0, 3))
+          if (alive) setRelated(list.filter((v) => v.id !== found.id).slice(0, 4))
         })
       })
       .catch(() => alive && setVendor('missing'))
@@ -77,8 +77,11 @@ export default function VendorDetail() {
     return (
       <section className="section">
         <div className="wrap">
-          <EmptyState title="We could not find that supplier" action={{ to: '/browse', label: 'Browse all suppliers' }}>
-            The listing may have been removed or is awaiting review.
+          <EmptyState
+            title="We could not find that supplier"
+            action={{ to: '/browse', label: 'Browse all suppliers' }}
+          >
+            The listing may have been removed, or it is still awaiting review.
           </EmptyState>
         </div>
       </section>
@@ -89,7 +92,7 @@ export default function VendorDetail() {
     return (
       <section className="section">
         <div className="wrap">
-          <div className="skeleton" style={{ height: 400 }} />
+          <div className="skeleton" style={{ height: 420 }} />
         </div>
       </section>
     )
@@ -100,47 +103,59 @@ export default function VendorDetail() {
     tier.limits.images,
   )
   const description = v.description.slice(0, tier.limits.descriptionChars)
+  const mark = tier.limits.badge
 
   return (
     <>
-      <section className="vendor-hero">
+      <section className="section-tight">
         <div className="wrap">
-          <p className="tiny" style={{ color: 'rgb(255 255 255 / 60%)', marginBottom: '0.6rem' }}>
+          <p className="crumb">
             <Link to="/browse">Suppliers</Link>
             {' / '}
-            <Link to={`/browse?category=${v.categories[0]}`}>{categoryName(v.categories[0] ?? '')}</Link>
+            <Link to={`/browse?category=${v.categories[0]}`}>
+              {categoryName(v.categories[0] ?? '')}
+            </Link>
           </p>
 
-          <div className="row" style={{ marginBottom: '0.75rem' }}>
-            <TierBadge tier={v.tier} />
-            <VerifiedBadge verified={v.verified} />
+          <div className="vendor-title">
+            <div>
+              <h1 style={{ fontSize: 'clamp(2.2rem, 1.4rem + 2.6vw, 3.4rem)' }}>{v.name}</h1>
+              <p className="tagline">{v.tagline}</p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              {mark && <p className="label-xs" style={{ color: 'var(--gold)' }}>{mark} listing</p>}
+              {v.verified && <p className="verified-note">Verified supplier</p>}
+            </div>
           </div>
 
-          <h1>{v.name}</h1>
-          <p className="tagline">{v.tagline}</p>
-
-          <div className="row" style={{ marginTop: '1.25rem' }}>
-            <span className="badge badge-soft">📍 {v.town}</span>
-            {v.provinces.map((p) => (
-              <span key={p} className="badge badge-soft">
-                {p}
-              </span>
-            ))}
-            <Stars rating={v.rating} count={v.reviewCount} />
+          <div className="meta-line">
+            <span>
+              {v.town}
+              {v.provinces.length ? ` · Serves ${v.provinces.join(', ')}` : ''}
+            </span>
+            <Rating rating={v.rating} count={v.reviewCount} />
+            <span>
+              From <strong>{rands(v.priceFrom)}</strong>
+              {v.priceNote && ` — ${v.priceNote}`}
+            </span>
           </div>
         </div>
       </section>
 
-      <section className="section-tight">
+      <section style={{ paddingBottom: '4rem' }}>
         <div className="wrap">
           <div className="vendor-layout">
             <div>
               <div className="gallery">
-                <img className="main" src={images[active] ?? images[0]} alt={`${v.name} — photo ${active + 1}`} />
+                <img
+                  className="main"
+                  src={images[active] ?? images[0]}
+                  alt={`${v.name} — photo ${active + 1}`}
+                />
                 {images.length > 1 &&
                   images.map((src, i) => (
                     <button
-                      key={src.slice(0, 40) + i}
+                      key={`${i}-${src.slice(-24)}`}
                       className={i === active ? 'is-on' : ''}
                       onClick={() => setActive(i)}
                       aria-label={`Show photo ${i + 1}`}
@@ -151,72 +166,74 @@ export default function VendorDetail() {
               </div>
 
               {tier.limits.video && v.videoUrl && (
-                <div style={{ marginTop: '1.5rem', aspectRatio: '16 / 9' }}>
+                <div style={{ marginTop: '2rem', aspectRatio: '16 / 9' }}>
                   <iframe
                     src={v.videoUrl}
                     title={`${v.name} video`}
-                    style={{ width: '100%', height: '100%', border: 0, borderRadius: 'var(--radius)' }}
+                    style={{ width: '100%', height: '100%', border: 0 }}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
                     allowFullScreen
                   />
                 </div>
               )}
 
-              <div className="card card-pad" style={{ marginTop: '1.75rem' }}>
-                <h2 style={{ fontSize: '1.5rem' }}>About {v.name}</h2>
-                <p className="muted" style={{ marginTop: '0.85rem', whiteSpace: 'pre-line' }}>
-                  {description}
-                </p>
+              <div className="prose" style={{ marginTop: '2.5rem' }}>
+                <div className="block">
+                  <h2>About {v.name}</h2>
+                  <p style={{ whiteSpace: 'pre-line' }}>{description}</p>
+                </div>
 
                 {v.services.length > 0 && (
-                  <>
-                    <h3 style={{ marginTop: '1.75rem', marginBottom: '0.85rem' }}>What's included</h3>
-                    <ul className="tick-list">
+                  <div className="block">
+                    <h3>What's included</h3>
+                    <ul className="tick-list two-col">
                       {v.services.map((s) => (
                         <li key={s}>{s}</li>
                       ))}
                     </ul>
-                  </>
+                  </div>
                 )}
 
-                <h3 style={{ marginTop: '1.75rem' }}>Details</h3>
-                <div className="spec-list">
-                  <div>
-                    <span className="k">Starting price</span>
-                    <span>
-                      <strong>{rands(v.priceFrom)}</strong>
-                      {v.priceNote && <span className="muted tiny"> — {v.priceNote}</span>}
-                    </span>
-                  </div>
-                  {(v.capacityMin || v.capacityMax) && (
+                <div className="block">
+                  <h3>Details</h3>
+                  <div className="spec-list">
                     <div>
-                      <span className="k">Capacity</span>
-                      <span>
-                        {v.capacityMin ?? '—'} – {v.capacityMax ?? '—'} guests
+                      <span className="k">Starting price</span>
+                      <span className="v">
+                        <strong>{rands(v.priceFrom)}</strong>
+                        {v.priceNote && <span className="muted"> — {v.priceNote}</span>}
                       </span>
                     </div>
-                  )}
-                  <div>
-                    <span className="k">Categories</span>
-                    <span>{v.categories.map((c) => categoryName(c)).join(', ')}</span>
-                  </div>
-                  <div>
-                    <span className="k">Serves</span>
-                    <span>{v.provinces.join(', ')}</span>
-                  </div>
-                  <div>
-                    <span className="k">On the hub since</span>
-                    <span>{shortDate(v.createdAt) || 'Recently'}</span>
+                    {(v.capacityMin || v.capacityMax) && (
+                      <div>
+                        <span className="k">Capacity</span>
+                        <span className="v">
+                          {v.capacityMin ?? '—'} – {v.capacityMax ?? '—'} guests
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="k">Categories</span>
+                      <span className="v">{v.categories.map((c) => categoryName(c)).join(', ')}</span>
+                    </div>
+                    <div>
+                      <span className="k">Serves</span>
+                      <span className="v">{v.provinces.join(', ')}</span>
+                    </div>
+                    <div>
+                      <span className="k">On the hub since</span>
+                      <span className="v">{shortDate(v.createdAt) || 'Recently'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <aside>
-              <div className="card card-pad sidebar-card">
-                <h2 style={{ fontSize: '1.25rem' }}>Enquire with {v.name}</h2>
-                <p className="tiny muted" style={{ marginTop: '0.35rem', marginBottom: '1.25rem' }}>
-                  Free, and it goes straight to the supplier.
+              <div className="sidebar">
+                <h2 style={{ fontSize: '1.3rem' }}>Enquire</h2>
+                <p className="tiny muted" style={{ marginTop: '0.4rem', marginBottom: '1.5rem' }}>
+                  Free, and it goes straight to {v.name}.
                 </p>
 
                 <EnquiryForm vendor={v} />
@@ -225,26 +242,33 @@ export default function VendorDetail() {
                   <div className="contact-list">
                     {v.phone && (
                       <a href={telLink(v.phone)}>
-                        <span aria-hidden="true">📞</span> {v.phone}
+                        <span className="k">Phone</span>
+                        <span>{v.phone}</span>
                       </a>
                     )}
                     {v.whatsapp && (
                       <a
-                        href={whatsappLink(v.whatsapp, `Hi ${v.name}, I found you on The Function Hub SA.`)}
+                        href={whatsappLink(
+                          v.whatsapp,
+                          `Hi ${v.name}, I found you on The Function Hub SA.`,
+                        )}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <span aria-hidden="true">💬</span> WhatsApp
+                        <span className="k">WhatsApp</span>
+                        <span>Message</span>
                       </a>
                     )}
                     {v.email && (
                       <a href={`mailto:${v.email}`}>
-                        <span aria-hidden="true">✉️</span> {v.email}
+                        <span className="k">Email</span>
+                        <span>{v.email}</span>
                       </a>
                     )}
                     {tier.limits.showWebsite && v.website && (
                       <a href={externalUrl(v.website)} target="_blank" rel="noopener noreferrer nofollow">
-                        <span aria-hidden="true">🔗</span> Visit website
+                        <span className="k">Website</span>
+                        <span>Visit</span>
                       </a>
                     )}
                     {tier.limits.showSocials && v.instagram && (
@@ -253,15 +277,16 @@ export default function VendorDetail() {
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                       >
-                        <span aria-hidden="true">📸</span> @{v.instagram.replace('@', '')}
+                        <span className="k">Instagram</span>
+                        <span>@{v.instagram.replace('@', '')}</span>
                       </a>
                     )}
                   </div>
                 ) : (
-                  <div className="locked" style={{ marginTop: '1.25rem' }}>
-                    <strong>Direct contact details are hidden</strong> on Basic listings. Use the form
-                    above — {v.name} gets your enquiry by email either way.
-                  </div>
+                  <p className="locked">
+                    Direct contact details are hidden on Basic listings. Use the form above —{' '}
+                    {v.name} receives your enquiry by email either way.
+                  </p>
                 )}
               </div>
             </aside>
@@ -270,17 +295,17 @@ export default function VendorDetail() {
       </section>
 
       {related.length > 0 && (
-        <section className="section-tight" style={{ paddingBottom: '3rem' }}>
+        <section className="section-tight" style={{ paddingBottom: '4rem' }}>
           <div className="wrap">
-            <div className="browse-head">
-              <h2 style={{ fontSize: '1.6rem' }}>
-                More {categoryName(v.categories[0] ?? '').toLowerCase()} to compare
-              </h2>
-              <Link className="btn btn-ghost btn-sm" to={`/browse?category=${v.categories[0]}`}>
-                See all
-              </Link>
+            <div className="head">
+              <h2>More {categoryName(v.categories[0] ?? '').toLowerCase()} to compare</h2>
+              <p className="head-note">
+                <Link className="link" to={`/browse?category=${v.categories[0]}`}>
+                  See all
+                </Link>
+              </p>
             </div>
-            <div className="grid grid-3">
+            <div className="grid grid-results">
               {related.map((r) => (
                 <VendorCard key={r.id} vendor={r} />
               ))}

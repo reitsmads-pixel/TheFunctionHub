@@ -51,7 +51,7 @@ export default function SignIn() {
           </div>
         )}
 
-        <form className="card card-pad" onSubmit={onSubmit}>
+        <form onSubmit={onSubmit}>
           <div className="field">
             <label htmlFor="email">Email</label>
             <input
@@ -87,7 +87,7 @@ export default function SignIn() {
           </button>
         </form>
 
-        <p className="muted center" style={{ marginTop: '1.25rem' }}>
+        <p className="muted" style={{ marginTop: '1.75rem' }}>
           No account yet? <Link to="/list-your-business">List your business</Link>
         </p>
       </div>

@@ -52,7 +52,7 @@ export default function Billing() {
 
   return (
     <div className="stack">
-      <div className="card card-pad">
+      <div className="panel">
         <h2 style={{ fontSize: '1.4rem' }}>Plan &amp; billing</h2>
         <p className="muted" style={{ marginTop: '0.5rem' }}>
           You are on the <strong>{current.name}</strong> plan
@@ -126,7 +126,7 @@ export default function Billing() {
         })}
       </div>
 
-      <div className="card card-pad">
+      <div className="panel">
         <h3>Billing questions</h3>
         <ul className="tick-list" style={{ marginTop: '0.85rem' }}>
           <li>Monthly plans renew automatically until you cancel; cancel any time from this page.</li>

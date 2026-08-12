@@ -9,13 +9,16 @@ const COMPARE: { label: string; get: (t: (typeof TIERS)[number]) => string }[] =
   { label: 'Categories', get: (t) => `${t.limits.categories}` },
   { label: 'Provinces', get: (t) => `${t.limits.provinces}` },
   { label: 'Description length', get: (t) => `${t.limits.descriptionChars} characters` },
-  { label: 'Phone, WhatsApp & email shown', get: (t) => (t.limits.showContactDetails ? '✓' : '—') },
-  { label: 'Website link', get: (t) => (t.limits.showWebsite ? '✓' : '—') },
-  { label: 'Social links', get: (t) => (t.limits.showSocials ? '✓' : '—') },
-  { label: 'Video on your page', get: (t) => (t.limits.video ? '✓' : '—') },
-  { label: 'Home-page spotlight', get: (t) => (t.limits.homepageSpot ? '✓' : '—') },
-  { label: 'Search placement', get: (t) => ['Below paid listings', 'Above Basic', 'Top of results'][t.rank] },
-  { label: 'Monthly lead report', get: (t) => (t.limits.leadReports ? '✓' : '—') },
+  { label: 'Phone, WhatsApp & email shown', get: (t) => (t.limits.showContactDetails ? 'Yes' : '—') },
+  { label: 'Website link', get: (t) => (t.limits.showWebsite ? 'Yes' : '—') },
+  { label: 'Social links', get: (t) => (t.limits.showSocials ? 'Yes' : '—') },
+  { label: 'Video on your page', get: (t) => (t.limits.video ? 'Yes' : '—') },
+  { label: 'Home-page spotlight', get: (t) => (t.limits.homepageSpot ? 'Yes' : '—') },
+  {
+    label: 'Search placement',
+    get: (t) => ['Below paid listings', 'Above Basic', 'Top of results'][t.rank],
+  },
+  { label: 'Monthly lead report', get: (t) => (t.limits.leadReports ? 'Yes' : '—') },
   { label: 'Enquiries', get: () => 'Unlimited' },
   { label: 'Commission on your bookings', get: () => 'R0' },
 ]
@@ -43,7 +46,7 @@ const FAQ = [
   },
   {
     q: 'What makes a listing get enquiries?',
-    a: 'In order: clear starting prices, real photos of your own work, a specific description, and the areas you actually travel to. Listings with a starting price get noticeably more enquiries than ones that say "on request".',
+    a: 'In order: clear starting prices, real photographs of your own work, a specific description, and the areas you actually travel to. Listings with a starting price get noticeably more enquiries than ones that say "on request".',
   },
 ]
 
@@ -59,16 +62,15 @@ export default function Pricing() {
 
   return (
     <>
-      <section className="hero" style={{ paddingBlock: '3.5rem' }}>
+      <section className="hero">
         <div className="wrap">
-          <div className="hero-inner">
-            <span className="eyebrow">For suppliers</span>
+          <div className="hero-grid">
             <h1>
               Listing packages that pay <em>for themselves</em>
             </h1>
-            <p>
-              One enquiry a month covers most plans. Choose how visible you want to be — you can
-              start free and upgrade when the enquiries justify it.
+            <p className="hero-note">
+              One enquiry a month covers most plans. Start free and upgrade when the enquiries
+              justify it — no lock-in contract either way.
             </p>
           </div>
         </div>
@@ -76,13 +78,13 @@ export default function Pricing() {
 
       <section className="section">
         <div className="wrap">
-          <div className="center" style={{ marginBottom: '2.5rem' }}>
+          <div style={{ marginBottom: '2.25rem' }}>
             <div className="toggle" role="group" aria-label="Billing period">
               <button className={!annual ? 'is-on' : ''} onClick={() => setAnnual(false)}>
                 Monthly
               </button>
               <button className={annual ? 'is-on' : ''} onClick={() => setAnnual(true)}>
-                Annual — 2 months free
+                Annual — two months free
               </button>
             </div>
           </div>
@@ -92,6 +94,7 @@ export default function Pricing() {
               const price = annual ? tier.annual : tier.monthly
               return (
                 <div key={tier.id} className={`plan${tier.id === 'featured' ? ' is-popular' : ''}`}>
+                  <span className="plan-tag">{tier.id === 'featured' ? 'Most popular' : ''}</span>
                   <h3>{tier.name}</h3>
                   <p className="muted tiny">{tier.tagline}</p>
 
@@ -114,7 +117,7 @@ export default function Pricing() {
                   </ul>
 
                   <Link
-                    className={`btn btn-block ${tier.id === 'free' ? 'btn-ghost' : tier.id === 'premium' ? 'btn-gold' : 'btn-primary'}`}
+                    className={`btn btn-block ${tier.id === 'free' ? 'btn-ghost' : 'btn-primary'}`}
                     to={`/list-your-business?plan=${tier.id}&billing=${annual ? 'annual' : 'monthly'}`}
                   >
                     {tier.id === 'free' ? 'Start free' : `Choose ${tier.name}`}
@@ -124,7 +127,7 @@ export default function Pricing() {
             })}
           </div>
 
-          <p className="center muted tiny" style={{ marginTop: '1.5rem' }}>
+          <p className="muted tiny" style={{ marginTop: '1.5rem' }}>
             Prices include VAT. Cancel any time — no lock-in contract.
           </p>
         </div>
@@ -132,8 +135,7 @@ export default function Pricing() {
 
       <section className="section-tight">
         <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">Side by side</span>
+          <div className="head">
             <h2>What you get on each plan</h2>
           </div>
 
@@ -152,7 +154,7 @@ export default function Pricing() {
               <tbody>
                 {COMPARE.map((row) => (
                   <tr key={row.label}>
-                    <th scope="row" style={{ fontWeight: 500 }}>
+                    <th scope="row" style={{ fontWeight: 400, paddingLeft: 0 }}>
                       {row.label}
                     </th>
                     {TIERS.map((t) => (
@@ -168,14 +170,13 @@ export default function Pricing() {
 
       <section className="section">
         <div className="wrap-narrow faq">
-          <div className="section-head center">
-            <span className="eyebrow">Questions</span>
+          <div className="head">
             <h2>Before you sign up</h2>
           </div>
           {FAQ.map((item) => (
             <details key={item.q}>
               <summary>{item.q}</summary>
-              <p className="muted">{item.a}</p>
+              <p>{item.a}</p>
             </details>
           ))}
         </div>
@@ -183,19 +184,21 @@ export default function Pricing() {
 
       <section className="section-tight" style={{ paddingBottom: '4rem' }}>
         <div className="wrap">
-          <div className="band center">
-            <h2>Ready to get listed?</h2>
-            <p style={{ margin: '1rem auto 0', maxWidth: '52ch' }}>
-              Setting up takes about ten minutes. You can start on the free plan and upgrade later
-              without redoing anything.
-            </p>
-            <div className="row" style={{ justifyContent: 'center', marginTop: '1.75rem' }}>
-              <Link className="btn btn-gold" to="/list-your-business">
-                Add your business
-              </Link>
-              <Link className="btn btn-light" to="/contact">
-                Talk to us first
-              </Link>
+          <div className="band">
+            <div style={{ maxWidth: '52ch' }}>
+              <h2>Ready to get listed?</h2>
+              <p style={{ marginTop: '1.25rem' }}>
+                Setting up takes about ten minutes. Start on the free plan and upgrade later without
+                redoing anything.
+              </p>
+              <div className="row" style={{ marginTop: '2rem' }}>
+                <Link className="btn btn-gold" to="/list-your-business">
+                  Add your business
+                </Link>
+                <Link className="btn btn-light" to="/contact">
+                  Talk to us first
+                </Link>
+              </div>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { CATEGORIES, PROVINCES } from '../../data/taxonomy'
 import { emptyVendor, saveVendor } from '../../lib/vendors'
 import { uploadListingImage } from '../../lib/uploads'
 import { tierOf } from '../../lib/tiers'
-import { Notice, StatusBadge } from '../../components/ui'
+import { Notice, StatusText } from '../../components/ui'
 import type { TierId, Vendor } from '../../lib/types'
 
 export default function ListingEditor() {
@@ -119,7 +119,7 @@ export default function ListingEditor() {
 
   return (
     <form className="stack" onSubmit={onSubmit}>
-      <div className="card card-pad">
+      <div className="panel">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div>
             <h2 style={{ fontSize: '1.4rem' }}>My listing</h2>
@@ -131,7 +131,7 @@ export default function ListingEditor() {
               <Link to="/dashboard/billing">Change plan</Link>
             </p>
           </div>
-          <StatusBadge status={form.status} />
+          <StatusText status={form.status} />
         </div>
       </div>
 
@@ -144,7 +144,7 @@ export default function ListingEditor() {
 
       {message && <Notice kind={message.kind}>{message.text}</Notice>}
 
-      <div className="card card-pad">
+      <div className="panel">
         <h3>The basics</h3>
         <div className="field" style={{ marginTop: '1rem' }}>
           <label htmlFor="f-name">Business name</label>
@@ -184,7 +184,7 @@ export default function ListingEditor() {
         </div>
       </div>
 
-      <div className="card card-pad">
+      <div className="panel">
         <h3>Categories</h3>
         <p className="muted tiny" style={{ marginBottom: '0.85rem' }}>
           Choose up to {tier.limits.categories} — {form.categories.length} selected.
@@ -233,7 +233,7 @@ export default function ListingEditor() {
         </div>
       </div>
 
-      <div className="card card-pad">
+      <div className="panel">
         <h3>Pricing &amp; capacity</h3>
         <div className="field-row" style={{ marginTop: '1rem' }}>
           <div className="field">
@@ -299,7 +299,7 @@ export default function ListingEditor() {
         </div>
       </div>
 
-      <div className="card card-pad">
+      <div className="panel">
         <h3>Photos</h3>
         <p className="muted tiny" style={{ marginBottom: '0.85rem' }}>
           {form.images.length} of {tier.limits.images} used. Use your own work — we reject stock
@@ -362,7 +362,7 @@ export default function ListingEditor() {
         )}
       </div>
 
-      <div className="card card-pad">
+      <div className="panel">
         <h3>Contact details</h3>
         {!tier.limits.showContactDetails && (
           <div style={{ marginBlock: '1rem' }}>
@@ -424,7 +424,7 @@ export default function ListingEditor() {
         </div>
       </div>
 
-      <div className="card card-pad">
+      <div className="panel">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <p className="muted tiny" style={{ maxWidth: '40ch' }}>
             {form.status === 'published'

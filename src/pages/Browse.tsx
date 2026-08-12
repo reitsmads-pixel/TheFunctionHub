@@ -29,9 +29,9 @@ export default function Browse() {
   const sort = (params.get('sort') as Sort) || 'relevance'
 
   const heading = category
-    ? `${categoryName(category)}${province ? ` in ${province}` : ' in South Africa'}`
+    ? `${categoryName(category)}${province ? ` in ${province}` : ''}`
     : province
-      ? `Event suppliers in ${province}`
+      ? `Suppliers in ${province}`
       : 'All suppliers'
 
   useSeo({
@@ -82,13 +82,11 @@ export default function Browse() {
     guests && { key: 'guests', label: `${guests}+ guests` },
   ].filter(Boolean) as { key: string; label: string }[]
 
-  const paidCount = (results ?? []).filter((v) => v.tier !== 'free').length
-
   return (
     <>
-      <section style={{ background: 'var(--plum-800)', paddingBlock: '2.25rem 3.25rem' }}>
+      <section className="page-head">
         <div className="wrap">
-          <h1 style={{ color: '#fff', fontSize: 'clamp(1.8rem, 1.2rem + 2vw, 2.6rem)' }}>{heading}</h1>
+          <h1 style={{ fontSize: 'clamp(2.1rem, 1.4rem + 2.4vw, 3.2rem)' }}>{heading}</h1>
           <SearchBar initialQ={q} initialCategory={category} initialProvince={province} />
         </div>
       </section>
@@ -100,10 +98,7 @@ export default function Browse() {
               <div className="group">
                 <h3>Category</h3>
                 <div className="filter-list">
-                  <button
-                    className={!category ? 'is-on' : ''}
-                    onClick={() => update('category', '')}
-                  >
+                  <button className={!category ? 'is-on' : ''} onClick={() => update('category', '')}>
                     All categories
                   </button>
                   {CATEGORIES.map((c) => (
@@ -121,10 +116,7 @@ export default function Browse() {
               <div className="group">
                 <h3>Province</h3>
                 <div className="filter-list">
-                  <button
-                    className={!province ? 'is-on' : ''}
-                    onClick={() => update('province', '')}
-                  >
+                  <button className={!province ? 'is-on' : ''} onClick={() => update('province', '')}>
                     Anywhere
                   </button>
                   {PROVINCES.map((p) => (
@@ -140,57 +132,47 @@ export default function Browse() {
               </div>
 
               <div className="group">
-                <h3>Budget</h3>
-                <label className="label" htmlFor="budget-select" style={{ position: 'absolute', left: -9999 }}>
-                  Budget
-                </label>
-                <select
-                  id="budget-select"
-                  value={budget}
-                  onChange={(e) => update('budget', e.target.value === 'any' ? '' : e.target.value)}
-                >
-                  {BUDGET_BANDS.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.label}
-                    </option>
-                  ))}
-                </select>
-                <p className="tiny muted" style={{ marginTop: '0.4rem' }}>
-                  Matches the supplier's starting price.
-                </p>
-              </div>
+                <div className="field" style={{ marginBottom: '1.25rem' }}>
+                  <label htmlFor="budget-select">Budget</label>
+                  <select
+                    id="budget-select"
+                    value={budget}
+                    onChange={(e) => update('budget', e.target.value === 'any' ? '' : e.target.value)}
+                  >
+                    {BUDGET_BANDS.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.label}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="hint">Matches the supplier's starting price.</span>
+                </div>
 
-              <div className="group">
-                <h3>Guests</h3>
-                <label className="label" htmlFor="guests-input" style={{ position: 'absolute', left: -9999 }}>
-                  Minimum guests
-                </label>
-                <input
-                  id="guests-input"
-                  type="number"
-                  min={1}
-                  placeholder="e.g. 150"
-                  value={guests}
-                  onChange={(e) => update('guests', e.target.value)}
-                />
-                <p className="tiny muted" style={{ marginTop: '0.4rem' }}>
-                  Only filters suppliers that publish a capacity.
-                </p>
+                <div className="field" style={{ marginBottom: 0 }}>
+                  <label htmlFor="guests-input">Guests</label>
+                  <input
+                    id="guests-input"
+                    type="number"
+                    min={1}
+                    placeholder="e.g. 150"
+                    value={guests}
+                    onChange={(e) => update('guests', e.target.value)}
+                  />
+                  <span className="hint">Only filters suppliers who publish a capacity.</span>
+                </div>
               </div>
             </aside>
 
             <div>
               <div className="browse-head">
-                <p className="muted">
+                <p className="muted tiny">
                   {results === null
                     ? 'Loading suppliers…'
                     : `${results.length} supplier${results.length === 1 ? '' : 's'}`}
-                  {paidCount > 0 && results !== null && (
-                    <span className="tiny"> · Featured and Premium listings appear first</span>
-                  )}
+                  {results !== null && sort === 'relevance' && ' · paid listings appear first'}
                 </p>
 
-                <div className="row">
+                <div className="row" style={{ gap: '0.75rem' }}>
                   <label className="tiny muted" htmlFor="sort-select">
                     Sort
                   </label>
@@ -214,15 +196,16 @@ export default function Browse() {
                   {activeChips.map((chip) => (
                     <span key={chip.key} className="chip">
                       {chip.label}
-                      <button
-                        onClick={() => update(chip.key, '')}
-                        aria-label={`Remove filter ${chip.label}`}
-                      >
+                      <button onClick={() => update(chip.key, '')} aria-label={`Remove ${chip.label}`}>
                         ✕
                       </button>
                     </span>
                   ))}
-                  <button className="btn btn-ghost btn-sm" onClick={() => setParams({}, { replace: true })}>
+                  <button
+                    className="link"
+                    style={{ background: 'none', border: 0, borderBottom: '1px solid var(--gold)', cursor: 'pointer', padding: 0 }}
+                    onClick={() => setParams({}, { replace: true })}
+                  >
                     Clear all
                   </button>
                 </div>

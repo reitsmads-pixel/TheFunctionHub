@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { StatusBadge, TierBadge } from '../components/ui'
+import { StatusText } from '../components/ui'
 import {
   listAllVendors,
   setVendorStatus,
@@ -89,24 +89,24 @@ export default function Admin() {
           Moderate listings, change plans and keep an eye on revenue.
         </p>
 
-        <div className="stat-grid" style={{ marginBottom: '1.75rem' }}>
-          <div className="stat">
+        <div className="figures compact" style={{ marginBottom: '1.75rem' }}>
+          <div>
             <strong>{counts.total}</strong>
             <span>Listings</span>
           </div>
-          <div className="stat">
+          <div>
             <strong>{counts.published}</strong>
             <span>Live</span>
           </div>
-          <div className="stat">
+          <div>
             <strong>{counts.pending}</strong>
             <span>Awaiting review</span>
           </div>
-          <div className="stat">
+          <div>
             <strong>{counts.paying}</strong>
             <span>Paying suppliers</span>
           </div>
-          <div className="stat">
+          <div>
             <strong>{rands(mrr)}</strong>
             <span>MRR at list price</span>
           </div>
@@ -124,7 +124,7 @@ export default function Admin() {
           ))}
         </div>
 
-        <div className="card" style={{ padding: '0.5rem 1rem' }}>
+        <div>
           <div className="table-scroll">
             <table className="table">
               <thead>
@@ -151,12 +151,11 @@ export default function Admin() {
                       )}
                     </td>
                     <td>
-                      <StatusBadge status={v.status} />
+                      <StatusText status={v.status} />
                     </td>
                     <td>
                       <div className="row" style={{ gap: '0.35rem' }}>
-                        <TierBadge tier={v.tier} />
-                        <label style={{ position: 'absolute', left: -9999 }} htmlFor={`tier-${v.id}`}>
+                        <label className="sr-only" htmlFor={`tier-${v.id}`}>
                           Plan for {v.name}
                         </label>
                         <select

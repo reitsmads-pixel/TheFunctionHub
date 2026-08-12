@@ -12,7 +12,7 @@ import type { Vendor } from '../lib/types'
 const STEPS = [
   {
     title: 'Search by what you need',
-    body: 'Filter by category, province, guest count and budget. Every listing shows a starting price so you are not guessing.',
+    body: 'Filter by category, province, guest count and budget. Every listing shows a starting price, so you are not guessing.',
   },
   {
     title: 'Shortlist and compare',
@@ -20,25 +20,23 @@ const STEPS = [
   },
   {
     title: 'Enquire directly',
-    body: 'Send one enquiry per supplier. It goes straight to them — we take no commission on your booking.',
+    body: 'One enquiry per supplier, straight to them. We take no commission on your booking.',
   },
 ]
 
-const REVIEWS = [
+const QUOTES = [
   {
-    quote:
-      'We found our venue, caterer and DJ in one evening. Three enquiries, three quotes back by Monday.',
-    who: 'Thandi M., wedding in Hartbeespoort',
+    quote: 'We found our venue, caterer and DJ in one evening. Three enquiries, three quotes back by Monday.',
+    who: 'Thandi M. — wedding in Hartbeespoort',
   },
   {
     quote:
       'I listed my catering business on the Featured plan and had eleven enquiries in the first month. It paid for itself twice over.',
-    who: 'Sipho N., Ubuntu Feast Catering',
+    who: 'Sipho N. — Ubuntu Feast Catering',
   },
   {
-    quote:
-      'Being able to filter by province and budget saved me hours of scrolling through Facebook groups.',
-    who: 'Lerato K., 40th birthday in Bloemfontein',
+    quote: 'Filtering by province and budget saved me hours of scrolling through Facebook groups.',
+    who: 'Lerato K. — 40th birthday in Bloemfontein',
   },
 ]
 
@@ -75,7 +73,7 @@ export default function Home() {
 
   /** The home-page slot is a Premium perk — this is where that tier earns out. */
   const spotlight = useMemo(
-    () => (vendors ?? []).filter((v) => v.tier === 'premium').slice(0, 3),
+    () => (vendors ?? []).filter((v) => v.tier === 'premium').slice(0, 4),
     [vendors],
   )
   const recent = useMemo(
@@ -83,17 +81,16 @@ export default function Home() {
       [...(vendors ?? [])]
         .filter((v) => !spotlight.includes(v))
         .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, 6),
+        .slice(0, 4),
     [vendors, spotlight],
   )
 
   const stats = useMemo(() => {
     const list = vendors ?? []
-    const provinces = new Set(list.flatMap((v) => v.provinces))
     return {
       suppliers: list.length,
       categories: new Set(list.flatMap((v) => v.categories)).size,
-      provinces: provinces.size,
+      provinces: new Set(list.flatMap((v) => v.provinces)).size,
     }
   }, [vendors])
 
@@ -101,20 +98,19 @@ export default function Home() {
     <>
       <section className="hero">
         <div className="wrap">
-          <div className="hero-inner">
-            <span className="eyebrow">Function &amp; event suppliers · South Africa</span>
+          <div className="hero-grid">
             <h1>
               Plan the function <em>without</em> the guesswork.
             </h1>
-            <p>
-              Venues, caterers, décor, photographers, DJs and everything in between — in one place,
-              with real prices and direct contact. Searching and enquiring is free, always.
+            <p className="hero-note">
+              Venues, caterers, décor, photographers and DJs across all nine provinces — with real
+              starting prices and direct contact. Searching and enquiring is free, always.
             </p>
           </div>
 
           <SearchBar />
 
-          <div className="hero-stats">
+          <div className="figures">
             <div>
               <strong>{stats.suppliers || '—'}</strong>
               <span>Suppliers listed</span>
@@ -137,51 +133,48 @@ export default function Home() {
 
       <section className="section">
         <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">Browse by category</span>
+          <div className="head">
             <h2>What do you still need?</h2>
-            <p className="lead">
-              Start with the big three — venue, food, photos — then fill in the rest.
+            <p className="head-note">
+              Start with the big three — venue, food, photographs — then fill in the rest.
             </p>
           </div>
 
-          <div className="grid grid-4">
-            {CATEGORIES.slice(0, 8).map((c) => (
-              <Link key={c.slug} className="cat-tile" to={`/browse?category=${c.slug}`}>
-                <span className="icon" aria-hidden="true">
-                  {c.icon}
-                </span>
-                <strong>{c.name}</strong>
-                <span>{c.blurb}</span>
+          <div className="index-list">
+            {CATEGORIES.slice(0, 10).map((c, i) => (
+              <Link key={c.slug} className="index-row" to={`/browse?category=${c.slug}`}>
+                <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                <span className="nm">{c.name}</span>
+                <span className="blurb">{c.blurb}</span>
               </Link>
             ))}
           </div>
 
-          <div className="center" style={{ marginTop: '2rem' }}>
-            <Link className="btn btn-ghost" to="/categories">
-              See all {CATEGORIES.length} categories
+          <p style={{ marginTop: '1.75rem' }}>
+            <Link className="link" to="/categories">
+              All {CATEGORIES.length} categories
             </Link>
-          </div>
+          </p>
         </div>
       </section>
 
       {(vendors === null || spotlight.length > 0) && (
         <section className="section-tight">
           <div className="wrap">
-            <div className="browse-head">
-              <div>
-                <span className="eyebrow">Spotlight</span>
-                <h2>Premium suppliers this month</h2>
-              </div>
-              <Link className="btn btn-ghost btn-sm" to="/browse">
-                View all suppliers
-              </Link>
+            <div className="head">
+              <h2>In the spotlight</h2>
+              <p className="head-note">
+                Premium listings, shown here and at the top of every search they appear in.{' '}
+                <Link className="link" to="/browse">
+                  All suppliers
+                </Link>
+              </p>
             </div>
 
             {vendors === null ? (
-              <CardSkeletons count={3} />
+              <CardSkeletons count={4} />
             ) : (
-              <div className="grid grid-3">
+              <div className="grid grid-results">
                 {spotlight.map((v) => (
                   <VendorCard key={v.id} vendor={v} />
                 ))}
@@ -193,23 +186,16 @@ export default function Home() {
 
       <section className="section">
         <div className="wrap">
-          <div className="section-head center">
-            <span className="eyebrow">How it works</span>
+          <div className="head">
             <h2>Three steps, no middleman</h2>
           </div>
 
-          <div className="grid grid-3">
+          <div className="steps">
             {STEPS.map((step, i) => (
-              <div key={step.title} className="card card-pad step">
-                <span className="n" aria-hidden="true">
-                  {i + 1}
-                </span>
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.4rem' }}>{step.title}</h3>
-                  <p className="muted" style={{ fontSize: '0.93rem' }}>
-                    {step.body}
-                  </p>
-                </div>
+              <div key={step.title} className="step">
+                <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
               </div>
             ))}
           </div>
@@ -219,13 +205,10 @@ export default function Home() {
       {recent.length > 0 && (
         <section className="section-tight">
           <div className="wrap">
-            <div className="browse-head">
-              <div>
-                <span className="eyebrow">Recently added</span>
-                <h2>New on the hub</h2>
-              </div>
+            <div className="head">
+              <h2>New on the hub</h2>
             </div>
-            <div className="grid grid-3">
+            <div className="grid grid-results">
               {recent.map((v) => (
                 <VendorCard key={v.id} vendor={v} />
               ))}
@@ -237,19 +220,18 @@ export default function Home() {
       <section className="section">
         <div className="wrap">
           <div className="band">
-            <div style={{ maxWidth: '58ch' }}>
-              <span className="eyebrow" style={{ color: 'var(--gold-400)' }}>
-                For suppliers
-              </span>
-              <h2>Get in front of people already looking for you</h2>
-              <p style={{ marginTop: '1rem' }}>
+            <div style={{ maxWidth: '56ch' }}>
+              <h2>
+                Get in front of people <em>already looking</em> for you
+              </h2>
+              <p style={{ marginTop: '1.25rem' }}>
                 A basic listing is free and stays free. When you are ready for more enquiries,
-                Featured puts you above the free listings and shows your phone number, and Premium
-                puts you at the top of every search you appear in.
+                Featured puts you above the free listings and shows your phone number; Premium puts
+                you at the top of every search you appear in.
               </p>
-              <div className="row" style={{ marginTop: '1.75rem' }}>
+              <div className="row" style={{ marginTop: '2rem' }}>
                 <Link className="btn btn-gold" to="/list-your-business">
-                  Add your business — free
+                  Add your business
                 </Link>
                 <Link className="btn btn-light" to="/pricing">
                   See listing packages
@@ -262,15 +244,14 @@ export default function Home() {
 
       <section className="section-tight" style={{ paddingBottom: '4rem' }}>
         <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">What people say</span>
+          <div className="head">
             <h2>Both sides of the enquiry</h2>
           </div>
           <div className="grid grid-3">
-            {REVIEWS.map((r) => (
-              <blockquote key={r.who} className="quote">
-                <p>“{r.quote}”</p>
-                <footer>{r.who}</footer>
+            {QUOTES.map((q) => (
+              <blockquote key={q.who} className="pull">
+                <p>“{q.quote}”</p>
+                <footer>{q.who}</footer>
               </blockquote>
             ))}
           </div>

@@ -3,46 +3,44 @@ import type { Vendor } from '../lib/types'
 import { categoryName } from '../data/taxonomy'
 import { rands, truncate } from '../lib/format'
 import { placeholderImage } from '../lib/placeholder'
-import { Stars, TierBadge, VerifiedBadge } from './ui'
+import { tierOf } from '../lib/tiers'
+import { Rating } from './ui'
 
 export default function VendorCard({ vendor }: { vendor: Vendor }) {
   const cover = vendor.images[0] || placeholderImage(vendor.slug || vendor.name)
+  const mark = tierOf(vendor.tier).limits.badge
+
   return (
-    <article className={`card vendor-card${vendor.tier === 'premium' ? ' is-premium' : ''}`}>
+    <article className="vendor-card">
       <div className="thumb">
         <img src={cover} alt="" loading="lazy" />
-        <div className="thumb-badges">
-          <TierBadge tier={vendor.tier} />
-          <VerifiedBadge verified={vendor.verified} />
-        </div>
+        {mark && (
+          <span className={`mark${vendor.tier === 'premium' ? ' is-premium' : ''}`}>{mark}</span>
+        )}
       </div>
 
       <div className="body">
-        <div className="row" style={{ gap: '0.4rem' }}>
-          <span className="badge badge-soft">{categoryName(vendor.categories[0] ?? '')}</span>
-          <span className="tiny muted">
-            {vendor.town}
-            {vendor.provinces[0] ? `, ${vendor.provinces[0]}` : ''}
-          </span>
-        </div>
+        <p className="kicker">
+          {categoryName(vendor.categories[0] ?? '')} — {vendor.town}
+        </p>
 
         <h3>
           <Link to={`/supplier/${vendor.slug}`}>{vendor.name}</Link>
         </h3>
 
-        <p className="tagline">{truncate(vendor.tagline || vendor.description, 110)}</p>
+        <p className="tagline">{truncate(vendor.tagline || vendor.description, 96)}</p>
 
-        <div className="meta">
+        <div className="foot">
           <span className="price">
             {vendor.priceFrom != null ? (
               <>
-                from <strong>{rands(vendor.priceFrom)}</strong>
+                From <strong>{rands(vendor.priceFrom)}</strong>
               </>
             ) : (
               <strong>Price on request</strong>
             )}
           </span>
-          <Stars rating={vendor.rating} count={vendor.reviewCount} />
+          <Rating rating={vendor.rating} count={vendor.reviewCount} />
         </div>
       </div>
     </article>

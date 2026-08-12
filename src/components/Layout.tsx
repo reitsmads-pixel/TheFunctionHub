@@ -5,23 +5,18 @@ import { useAuth } from '../lib/AuthContext'
 import { CATEGORIES } from '../data/taxonomy'
 
 const NAV = [
-  { to: '/browse', label: 'Browse suppliers' },
+  { to: '/browse', label: 'Suppliers' },
   { to: '/categories', label: 'Categories' },
-  { to: '/pricing', label: 'List your business' },
   { to: '/planning-guide', label: 'Planning guide' },
+  { to: '/pricing', label: 'List your business' },
   { to: '/about', label: 'About' },
 ]
 
-function Brand({ compact = false }: { compact?: boolean }) {
+function Brand() {
   return (
     <Link to="/" className="brand" aria-label="The Function Hub SA home">
-      <span className="brand-mark" aria-hidden="true">
-        FH
-      </span>
-      <span>
-        The Function Hub
-        {!compact && <small>South Africa</small>}
-      </span>
+      <span className="name">The Function Hub</span>
+      <small>South Africa</small>
     </Link>
   )
 }
@@ -64,7 +59,7 @@ function Header() {
                 <Link className="btn btn-ghost btn-sm" to="/signin">
                   Supplier login
                 </Link>
-                <Link className="btn btn-gold btn-sm" to="/list-your-business">
+                <Link className="btn btn-primary btn-sm" to="/list-your-business">
                   Add your business
                 </Link>
               </>
@@ -77,10 +72,8 @@ function Header() {
             aria-controls="mobile-menu"
             onClick={() => setOpen((v) => !v)}
           >
-            <span aria-hidden="true">{open ? '✕' : '☰'}</span>
-            <span className="sr-only" style={{ position: 'absolute', left: -9999 }}>
-              Menu
-            </span>
+            <span aria-hidden="true">{open ? 'Close' : 'Menu'}</span>
+            <span className="sr-only">Navigation</span>
           </button>
         </div>
 
@@ -103,7 +96,7 @@ function Header() {
             ) : (
               <>
                 <NavLink to="/signin">Supplier login</NavLink>
-                <Link className="btn btn-gold" to="/list-your-business">
+                <Link className="btn btn-primary" to="/list-your-business">
                   Add your business
                 </Link>
               </>
@@ -122,14 +115,14 @@ function Footer() {
         <div className="footer-grid">
           <div>
             <Brand />
-            <p style={{ marginTop: '1rem', fontSize: '0.9rem', maxWidth: '34ch' }}>
+            <p style={{ marginTop: '1.25rem', fontSize: '0.92rem', maxWidth: '34ch' }}>
               South Africa's directory of function and event suppliers. Free to search, free to
               enquire, and free for suppliers to get listed.
             </p>
           </div>
 
           <div>
-            <h4>Popular categories</h4>
+            <h4>Categories</h4>
             <ul>
               {CATEGORIES.slice(0, 6).map((c) => (
                 <li key={c.slug}>
@@ -140,7 +133,7 @@ function Footer() {
           </div>
 
           <div>
-            <h4>For suppliers</h4>
+            <h4>Suppliers</h4>
             <ul>
               <li>
                 <Link to="/pricing">Listing packages</Link>
@@ -177,10 +170,8 @@ function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} The Function Hub SA. All rights reserved.</span>
-          <span>
-            <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-          </span>
+          <span>© {new Date().getFullYear()} The Function Hub SA</span>
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
         </div>
       </div>
     </footer>
@@ -203,8 +194,8 @@ export default function Layout() {
       </a>
       {isDemoMode && (
         <div className="demo-bar">
-          <strong>Demo mode.</strong> Sample suppliers, and anything you save stays in this
-          browser. Add your Firebase keys to switch on the live directory.
+          <strong>Demo mode.</strong> Sample suppliers, and anything you save stays in this browser.
+          Add your Firebase keys to switch on the live directory.
         </div>
       )}
       <ScrollToTop />

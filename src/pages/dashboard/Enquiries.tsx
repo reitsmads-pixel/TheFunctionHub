@@ -48,7 +48,7 @@ export default function Enquiries() {
 
   return (
     <div className="stack">
-      <div className="card card-pad">
+      <div className="panel">
         <h2 style={{ fontSize: '1.4rem' }}>Enquiries</h2>
         <p className="muted tiny">
           {enquiries.filter((e) => !e.read).length} unread of {enquiries.length}. Reply directly —

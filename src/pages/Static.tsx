@@ -21,8 +21,7 @@ export function About() {
     <>
       <section className="hero" style={{ paddingBlock: '3.25rem' }}>
         <div className="wrap">
-          <div className="hero-inner">
-            <span className="eyebrow">About us</span>
+          <div className="hero-grid">
             <h1>
               Finding suppliers should not take <em>three weeks</em>
             </h1>
@@ -114,7 +113,6 @@ export function Contact() {
         <div className="vendor-layout">
           <div className="stack">
             <div>
-              <span className="eyebrow">Contact</span>
               <h1 style={{ fontSize: '2.2rem' }}>Talk to a human</h1>
               <p className="lead">
                 Questions about listing, billing, or a supplier who has not come back to you? Send us
@@ -122,20 +120,23 @@ export function Contact() {
               </p>
             </div>
 
-            <div className="card card-pad">
+            <div className="panel">
               <h3>Direct</h3>
               <div className="contact-list">
                 <a href={`mailto:${SITE.email}`}>
-                  <span aria-hidden="true">✉️</span> {SITE.email}
+                  <span className="k">Email</span>
+                  <span>{SITE.email}</span>
                 </a>
                 {SITE.phone && (
                   <a href={`tel:${SITE.phone.replace(/\s/g, '')}`}>
-                    <span aria-hidden="true">📞</span> {SITE.phone}
+                    <span className="k">Phone</span>
+                    <span>{SITE.phone}</span>
                   </a>
                 )}
                 {SITE.whatsapp && (
                   <a href={whatsappLink(SITE.whatsapp)} target="_blank" rel="noopener noreferrer">
-                    <span aria-hidden="true">💬</span> WhatsApp us
+                    <span className="k">WhatsApp</span>
+                    <span>Message us</span>
                   </a>
                 )}
               </div>
@@ -146,7 +147,7 @@ export function Contact() {
           </div>
 
           <aside>
-            <div className="card card-pad sidebar-card">
+            <div className="sidebar">
               {sent ? (
                 <Notice kind="success">Thanks — your message is on its way.</Notice>
               ) : (
@@ -242,8 +243,7 @@ export function PlanningGuide() {
     <>
       <section className="hero" style={{ paddingBlock: '3.25rem' }}>
         <div className="wrap">
-          <div className="hero-inner">
-            <span className="eyebrow">Free guide</span>
+          <div className="hero-grid">
             <h1>
               How to plan a function <em>in South Africa</em>
             </h1>
@@ -257,14 +257,13 @@ export function PlanningGuide() {
 
       <section className="section">
         <div className="wrap-narrow">
-          <div className="section-head">
-            <span className="eyebrow">Timeline</span>
+          <div className="head">
             <h2>When to book what</h2>
           </div>
 
           <div className="stack">
             {GUIDE.map((item, i) => (
-              <div key={item.heading} className="card card-pad step">
+              <div key={item.heading} className="step">
                 <span className="n" aria-hidden="true">
                   {i + 1}
                 </span>
@@ -278,8 +277,7 @@ export function PlanningGuide() {
             ))}
           </div>
 
-          <div className="section-head" style={{ marginTop: '3.5rem' }}>
-            <span className="eyebrow">Budget</span>
+          <div className="head" style={{ marginTop: '4rem' }}>
             <h2>Where the money goes</h2>
             <p className="lead">
               A rough split that holds for most weddings and larger functions. Adjust it, but know
@@ -308,8 +306,7 @@ export function PlanningGuide() {
             </table>
           </div>
 
-          <div className="section-head" style={{ marginTop: '3.5rem' }}>
-            <span className="eyebrow">Before you pay</span>
+          <div className="head" style={{ marginTop: '4rem' }}>
             <h2>Ask every supplier this</h2>
           </div>
 
@@ -378,8 +375,7 @@ export function Faq() {
   return (
     <section className="section">
       <div className="wrap-narrow faq">
-        <div className="section-head">
-          <span className="eyebrow">For suppliers</span>
+        <div className="head">
           <h1 style={{ fontSize: '2.2rem' }}>Frequently asked</h1>
         </div>
 
@@ -486,7 +482,7 @@ export function NotFound() {
   return (
     <section className="section">
       <div className="wrap center" style={{ paddingBlock: '3rem' }}>
-        <p className="eyebrow">404</p>
+        <p className="label-xs">404</p>
         <h1>We cannot find that page</h1>
         <p className="lead" style={{ margin: '1rem auto 2rem', maxWidth: '46ch' }}>
           The link may be old, or the listing may have moved. Try searching the directory instead.

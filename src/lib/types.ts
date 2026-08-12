@@ -72,9 +72,8 @@ export interface AppUser {
 export interface Category {
   slug: string
   name: string
-  /** Short line used on category cards. */
+  /** Short line used beside the category name in the index. */
   blurb: string
-  icon: string
 }
 
 export interface Tier {

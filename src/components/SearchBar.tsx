@@ -25,33 +25,42 @@ export default function SearchBar({ initialQ = '', initialCategory = '', initial
 
   return (
     <form className="searchbar" onSubmit={onSubmit} role="search">
-      <input
-        type="search"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Venue, caterer, DJ, photographer…"
-        aria-label="What are you looking for?"
-      />
+      <div>
+        <label htmlFor="s-q">What are you looking for</label>
+        <input
+          id="s-q"
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Venue, caterer, DJ…"
+        />
+      </div>
 
-      <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category">
-        <option value="">All categories</option>
-        {CATEGORIES.map((c) => (
-          <option key={c.slug} value={c.slug}>
-            {c.name}
-          </option>
-        ))}
-      </select>
+      <div>
+        <label htmlFor="s-cat">Category</label>
+        <select id="s-cat" value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="">All</option>
+          {CATEGORIES.map((c) => (
+            <option key={c.slug} value={c.slug}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <select value={province} onChange={(e) => setProvince(e.target.value)} aria-label="Province">
-        <option value="">Anywhere in SA</option>
-        {PROVINCES.map((p) => (
-          <option key={p} value={p}>
-            {p}
-          </option>
-        ))}
-      </select>
+      <div>
+        <label htmlFor="s-prov">Province</label>
+        <select id="s-prov" value={province} onChange={(e) => setProvince(e.target.value)}>
+          <option value="">Anywhere in SA</option>
+          {PROVINCES.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <button className="btn btn-gold" type="submit">
+      <button className="btn btn-primary" type="submit">
         Search
       </button>
     </form>

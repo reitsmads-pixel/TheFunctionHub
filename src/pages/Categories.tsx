@@ -26,11 +26,10 @@ export default function Categories() {
 
   return (
     <>
-      <section style={{ background: 'var(--plum-800)', color: '#fff', paddingBlock: '3rem' }}>
+      <section className="page-head">
         <div className="wrap">
-          <span className="eyebrow">Directory</span>
-          <h1 style={{ color: '#fff' }}>Every kind of supplier</h1>
-          <p style={{ color: 'rgb(255 255 255 / 75%)', marginTop: '0.75rem', maxWidth: '56ch' }}>
+          <h1 style={{ fontSize: 'clamp(2.1rem, 1.4rem + 2.4vw, 3.2rem)' }}>Categories</h1>
+          <p className="lead" style={{ marginTop: '1rem', maxWidth: '52ch' }}>
             From the venue down to the welcome signage. Pick a category to see who works in your
             province.
           </p>
@@ -39,15 +38,12 @@ export default function Categories() {
 
       <section className="section">
         <div className="wrap">
-          <div className="grid grid-4">
-            {CATEGORIES.map((c) => (
-              <Link key={c.slug} className="cat-tile" to={`/browse?category=${c.slug}`}>
-                <span className="icon" aria-hidden="true">
-                  {c.icon}
-                </span>
-                <strong>{c.name}</strong>
-                <span>{c.blurb}</span>
-                <span className="tiny muted" style={{ marginTop: '0.35rem' }}>
+          <div className="index-list">
+            {CATEGORIES.map((c, i) => (
+              <Link key={c.slug} className="index-row" to={`/browse?category=${c.slug}`}>
+                <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                <span className="nm">{c.name}</span>
+                <span className="blurb">
                   {counts[c.slug] ? `${counts[c.slug]} listed` : 'Be the first to list'}
                 </span>
               </Link>
@@ -58,14 +54,18 @@ export default function Categories() {
 
       <section className="section-tight" style={{ paddingBottom: '4rem' }}>
         <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">By province</span>
-            <h2>Browse where your function is</h2>
+          <div className="head">
+            <h2>By province</h2>
           </div>
-          <div className="chips">
-            {PROVINCES.map((p) => (
-              <Link key={p} className="chip" to={`/browse?province=${encodeURIComponent(p)}`}>
-                {p}
+          <div className="index-list">
+            {PROVINCES.map((p, i) => (
+              <Link
+                key={p}
+                className="index-row"
+                to={`/browse?province=${encodeURIComponent(p)}`}
+              >
+                <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                <span className="nm">{p}</span>
               </Link>
             ))}
           </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDashboard } from './DashboardLayout'
-import { EmptyState, Notice, StatusBadge, TierBadge } from '../../components/ui'
+import { EmptyState, Notice, StatusText } from '../../components/ui'
 import { listEnquiriesForVendor } from '../../lib/enquiries'
 import { tierOf } from '../../lib/tiers'
 import { shortDate } from '../../lib/format'
@@ -49,13 +49,16 @@ export default function Overview() {
         </Notice>
       )}
 
-      <div className="card card-pad">
+      <div className="panel">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div>
-            <div className="row" style={{ gap: '0.4rem', marginBottom: '0.5rem' }}>
-              <StatusBadge status={listing.status} />
-              <TierBadge tier={listing.tier} />
-            </div>
+            <p style={{ marginBottom: '0.5rem' }}>
+              <StatusText status={listing.status} />
+              <span className="status" style={{ color: 'var(--faint)' }}>
+                {' · '}
+                {tier.name} plan
+              </span>
+            </p>
             <h2 style={{ fontSize: '1.4rem' }}>{listing.name || 'Untitled listing'}</h2>
             <p className="muted tiny">Last updated {shortDate(listing.updatedAt) || 'just now'}</p>
           </div>
@@ -72,27 +75,27 @@ export default function Overview() {
         </div>
       </div>
 
-      <div className="stat-grid">
-        <div className="stat">
+      <div className="figures compact">
+        <div>
           <strong>{listing.views}</strong>
           <span>Page views</span>
         </div>
-        <div className="stat">
+        <div>
           <strong>{listing.enquiryCount}</strong>
           <span>Total enquiries</span>
         </div>
-        <div className="stat">
+        <div>
           <strong>{unread}</strong>
           <span>Unread</span>
         </div>
-        <div className="stat">
+        <div>
           <strong>{tier.name}</strong>
           <span>Current plan</span>
         </div>
       </div>
 
       {listing.tier === 'free' && (
-        <div className="card card-pad">
+        <div className="panel">
           <h3>Getting fewer enquiries than you would like?</h3>
           <p className="muted" style={{ marginTop: '0.5rem' }}>
             Basic listings sit below every paid listing in search results, and your phone number and
@@ -104,7 +107,7 @@ export default function Overview() {
         </div>
       )}
 
-      <div className="card card-pad">
+      <div className="panel">
         <h3>Get more out of your listing</h3>
         <ul className="tick-list" style={{ marginTop: '0.85rem' }}>
           <li>Publish a starting price — listings without one get roughly half the enquiries.</li>

@@ -65,8 +65,7 @@ export default function ListYourBusiness() {
     <>
       <section className="hero" style={{ paddingBlock: '3.25rem' }}>
         <div className="wrap">
-          <div className="hero-inner">
-            <span className="eyebrow">For suppliers</span>
+          <div className="hero-grid">
             <h1>
               Put your business where <em>people are looking</em>
             </h1>
@@ -83,7 +82,7 @@ export default function ListYourBusiness() {
           <div className="vendor-layout">
             <div className="stack">
               {SELLING_POINTS.map((point) => (
-                <div key={point.title} className="card card-pad">
+                <div key={point.title} className="panel">
                   <h3 style={{ fontSize: '1.15rem' }}>{point.title}</h3>
                   <p className="muted" style={{ marginTop: '0.5rem' }}>
                     {point.body}
@@ -91,7 +90,7 @@ export default function ListYourBusiness() {
                 </div>
               ))}
 
-              <div className="card card-pad">
+              <div className="panel">
                 <h3 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>What you will need</h3>
                 <ul className="tick-list">
                   <li>Your business name and the town you work from</li>
@@ -104,7 +103,7 @@ export default function ListYourBusiness() {
             </div>
 
             <aside>
-              <div className="card card-pad sidebar-card">
+              <div className="sidebar">
                 <h2 style={{ fontSize: '1.3rem' }}>Create your account</h2>
 
                 <div
@@ -195,13 +194,12 @@ export default function ListYourBusiness() {
 
       <section className="section-tight" style={{ paddingBottom: '4rem' }}>
         <div className="wrap">
-          <div className="section-head center">
-            <span className="eyebrow">Plans</span>
+          <div className="head">
             <h2>Start free, upgrade when it pays</h2>
           </div>
           <div className="grid grid-3">
             {TIERS.map((t) => (
-              <div key={t.id} className="card card-pad">
+              <div key={t.id} className="panel">
                 <h3>{t.name}</h3>
                 <p className="muted tiny">{t.tagline}</p>
                 <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', marginTop: '0.6rem' }}>
