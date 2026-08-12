@@ -1,0 +1,141 @@
+rules_version = '2';
+
+// The Function Hub SA — Firestore security rules.
+//
+// Principles:
+//   * Anyone may read published listings; nothing else is public.
+//   * A supplier may edit their own listing, but may NOT grant themselves a
+//     paid tier, the verified badge, or the published status. Those move only
+//     through an admin or the payment webhook (which uses the Admin SDK and
+//     bypasses these rules entirely).
+//   * Enquiries are write-only for the public and readable by the supplier
+//     they were sent to.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function changed(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // ---------------------------------------------------------------- users
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+
+      // A new account is always a vendor. Only an admin can mint an admin.
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == 'vendor';
+
+      // Users may edit their own profile but not their own role.
+      allow update: if isAdmin()
+        || (signedIn()
+            && request.auth.uid == uid
+            && request.resource.data.role == resource.data.role);
+
+      allow delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------------- vendors
+    match /vendors/{vendorId} {
+      function isOwner() {
+        return signedIn() && resource.data.ownerId == request.auth.uid;
+      }
+
+      allow read: if resource.data.status == 'published'
+        || isAdmin()
+        || (signedIn() && resource.data.ownerId == request.auth.uid);
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.tier == 'free'
+        && request.resource.data.verified == false
+        && request.resource.data.status in ['draft', 'pending'];
+
+      // The owner edits content only. Tier, verification, counters and the
+      // jump to 'published' are all off-limits.
+      allow update: if isOwner()
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.tier == resource.data.tier
+        && request.resource.data.verified == resource.data.verified
+        && request.resource.data.subscriptionEndsAt == resource.data.subscriptionEndsAt
+        && request.resource.data.views == resource.data.views
+        && request.resource.data.enquiryCount == resource.data.enquiryCount
+        && (request.resource.data.status == resource.data.status
+            || request.resource.data.status in ['draft', 'pending']);
+
+      // Public counters: a page view and an enquiry may each tick by one.
+      allow update: if resource.data.status == 'published'
+        && changed(['views'])
+        && request.resource.data.views == resource.data.views + 1;
+
+      allow update: if resource.data.status == 'published'
+        && changed(['enquiryCount'])
+        && request.resource.data.enquiryCount == resource.data.enquiryCount + 1;
+
+      allow update, delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------ slugs
+    // slug -> vendorId pointers. Public profile URLs resolve through here, and
+    // a create only succeeds when the slug is not already taken, which is what
+    // makes slugs unique without scanning the vendors collection.
+    match /slugs/{slug} {
+      allow get: if true;
+      allow list: if isAdmin();
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.vendorId is string;
+
+      allow update, delete: if isAdmin()
+        || (signedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // ------------------------------------------------------------ enquiries
+    match /enquiries/{enquiryId} {
+      function vendorOwner() {
+        return signedIn()
+          && exists(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
+          && get(/databases/$(database)/documents/vendors/$(resource.data.vendorId)).data.ownerId == request.auth.uid;
+      }
+
+      // Anyone may send an enquiry; nobody may read the whole collection.
+      allow create: if request.resource.data.keys().hasAll(['vendorId', 'name', 'email', 'message'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() < 200
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() < 4000
+        && request.resource.data.read == false;
+
+      allow read: if isAdmin() || vendorOwner();
+
+      // The supplier can only flip the read flag.
+      allow update: if (isAdmin() || vendorOwner()) && changed(['read']);
+
+      allow delete: if isAdmin();
+    }
+
+    // --------------------------------------------------------- payment log
+    // Written by the PayFast webhook through the Admin SDK, which bypasses
+    // these rules. Nothing client-side may touch it.
+    match /payments/{paymentId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+  }
+}
