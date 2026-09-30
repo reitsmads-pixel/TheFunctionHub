@@ -1,0 +1,25 @@
+{
+  "shortSupportMessage": {
+    "defaultMessage": "This tablet is in maintenance mode and managed by Preform (Pty) Ltd."
+  },
+  "playStoreMode": "BLACKLIST",
+  "passwordPolicies": [
+    {
+      "passwordScope": "SCOPE_DEVICE",
+      "passwordQuality": "NUMERIC",
+      "passwordMinimumLength": 6
+    }
+  ],
+  "systemUpdate": {
+    "type": "AUTOMATIC"
+  },
+  "statusReportingSettings": {
+    "softwareInfoEnabled": true,
+    "hardwareStatusEnabled": true,
+    "deviceSettingsEnabled": true,
+    "powerManagementEventsEnabled": true,
+    "networkInfoEnabled": true,
+    "memoryInfoEnabled": true,
+    "applicationReportsEnabled": true
+  }
+}
