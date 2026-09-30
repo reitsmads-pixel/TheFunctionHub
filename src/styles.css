@@ -82,3 +82,8 @@ button.link { background: none; color: var(--accent); padding: 0; min-height: 0;
 .signin { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
 .signin .card { max-width: 380px; width: 100%; text-align: center; }
 .gbutton { display: flex; justify-content: center; margin: 1.25rem 0 0.5rem; min-height: 44px; }
+
+.table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+.table th, .table td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table th { color: var(--muted); font-weight: 500; font-size: 0.9rem; }
+.table .right { text-align: right; }
