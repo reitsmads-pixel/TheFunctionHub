@@ -3,6 +3,9 @@ import { api } from './api';
 import { SignIn } from './pages/SignIn';
 import { Home } from './pages/Home';
 import { Setup } from './pages/Setup';
+import { Devices } from './pages/Devices';
+import { Enroll } from './pages/Enroll';
+import { linkProps, usePath } from './router';
 import { clearSession, loadSession, type Session } from './session';
 
 export interface Me {
@@ -14,6 +17,7 @@ export function App() {
   const [session, setSession] = useState<Session | null>(loadSession);
   const [me, setMe] = useState<Me | null>(null);
   const [error, setError] = useState('');
+  const path = usePath();
 
   useEffect(() => {
     const onSignedOut = () => {
@@ -56,9 +60,21 @@ export function App() {
   return (
     <div className="shell">
       <header className="topbar">
-        <a className="brand" href="/">
+        <a className="brand" {...linkProps('/')}>
           Preform Tablets
         </a>
+        {me?.enterprise && (
+          <nav className="nav">
+            {[
+              ['/devices', 'Devices'],
+              ['/enroll', 'Enroll'],
+            ].map(([href, label]) => (
+              <a key={href} className={path === href ? 'active' : ''} {...linkProps(href)}>
+                {label}
+              </a>
+            ))}
+          </nav>
+        )}
         <div className="who">
           <span className="email">{session.email}</span>
           <button className="link" onClick={signOut}>
@@ -75,8 +91,12 @@ export function App() {
           </div>
         ) : !me ? (
           <p className="muted">Checking access…</p>
-        ) : window.location.pathname === '/setup' ? (
+        ) : path === '/setup' ? (
           <Setup me={me} />
+        ) : me.enterprise && path === '/devices' ? (
+          <Devices />
+        ) : me.enterprise && path === '/enroll' ? (
+          <Enroll />
         ) : (
           <Home me={me} />
         )}
