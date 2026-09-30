@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.netlify/
+.env
+.env.*
+!.env.example
+# Never commit Google service-account keys.
+*.json.key
+*-key.json
+service-account*.json
+thefunctionhub-*.json
+*.pem
