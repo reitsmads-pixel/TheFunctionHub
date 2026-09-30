@@ -21,7 +21,7 @@ export default handler(async (req) => {
 
   let label: string | null = null;
   if (body.label !== undefined && body.label !== '') {
-    label = requireString(body, 'label', /^[\p{L}\p{N} ._#()-]{1,60}$/u).trim();
+    label = requireString(body, 'label', /^[\p{L}\p{N}\p{Pd} ._#()']{1,60}$/u).trim();
   }
 
   const policyName = `${enterpriseName()}/policies/${policyId}`;
