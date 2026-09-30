@@ -1,105 +1,43 @@
-import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../lib/AuthContext'
-import { isDemoMode } from '../lib/firebase'
-import { Notice } from '../components/ui'
-import { useSeo } from '../lib/seo'
+import { useEffect, useRef, useState } from 'react';
+import { saveSession, type Session } from '../session';
 
-export default function SignIn() {
-  const { user, signIn, loading } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
+export function SignIn({ onSignedIn }: { onSignedIn: (s: Session) => void }) {
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState(__GOOGLE_CLIENT_ID__ ? '' : 'GOOGLE_OAUTH_CLIENT_ID is not set in Netlify.');
 
-  useSeo({ title: 'Supplier login', description: 'Sign in to manage your listing on The Function Hub SA.' })
-
-  if (!loading && user) {
-    const to = (location.state as { from?: string } | null)?.from ?? '/dashboard'
-    return <Navigate to={to} replace />
-  }
-
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault()
-    setBusy(true)
-    setError('')
-    try {
-      await signIn(email, password)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(err instanceof Error ? friendly(err.message) : 'Could not sign in.')
-      setBusy(false)
-    }
-  }
+  useEffect(() => {
+    if (!__GOOGLE_CLIENT_ID__) return;
+    let cancelled = false;
+    const render = () => {
+      const gis = window.google?.accounts.id;
+      if (!gis) {
+        if (!cancelled) window.setTimeout(render, 100);
+        return;
+      }
+      gis.initialize({
+        client_id: __GOOGLE_CLIENT_ID__,
+        callback: ({ credential }) => {
+          const session = saveSession(credential);
+          if (session) onSignedIn(session);
+          else setError('Google sign-in did not return a usable account.');
+        },
+      });
+      if (buttonRef.current) gis.renderButton(buttonRef.current, { theme: 'outline', size: 'large', text: 'signin_with' });
+    };
+    render();
+    return () => {
+      cancelled = true;
+    };
+  }, [onSignedIn]);
 
   return (
-    <section className="section">
-      <div className="wrap" style={{ maxWidth: 460 }}>
-        <h1 style={{ fontSize: '2rem' }}>Supplier login</h1>
-        <p className="muted" style={{ marginTop: '0.5rem', marginBottom: '1.75rem' }}>
-          Manage your listing, read your enquiries and change your plan.
-        </p>
-
-        {isDemoMode && (
-          <div style={{ marginBottom: '1.25rem' }}>
-            <Notice kind="info">
-              Demo mode — any email and password will sign you in. Use an address starting with{' '}
-              <strong>admin@</strong> to see the admin area.
-            </Notice>
-          </div>
-        )}
-
-        <form onSubmit={onSubmit}>
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          {error && (
-            <div style={{ marginBottom: '1rem' }}>
-              <Notice kind="error">{error}</Notice>
-            </div>
-          )}
-
-          <button className="btn btn-primary btn-block" disabled={busy}>
-            {busy ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
-
-        <p className="muted" style={{ marginTop: '1.75rem' }}>
-          No account yet? <Link to="/list-your-business">List your business</Link>
-        </p>
+    <div className="signin">
+      <div className="card">
+        <h1>Preform Tablets</h1>
+        <p className="muted">Tablet management for Preform (Pty) Ltd. Authorised staff only.</p>
+        <div ref={buttonRef} className="gbutton" />
+        {error && <p className="error-text">{error}</p>}
       </div>
-    </section>
-  )
-}
-
-function friendly(message: string): string {
-  if (message.includes('invalid-credential') || message.includes('wrong-password')) {
-    return 'That email and password combination does not match an account.'
-  }
-  if (message.includes('user-not-found')) return 'We have no account with that email address.'
-  if (message.includes('too-many-requests')) return 'Too many attempts. Try again in a few minutes.'
-  return 'Could not sign in. Please try again.'
+    </div>
+  );
 }

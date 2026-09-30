@@ -1,3 +1,0 @@
-# Fallback for Netlify if netlify.toml is not picked up.
-/Thefunctionhubsa/*  /:splat  301!
-/*                   /index.html  200

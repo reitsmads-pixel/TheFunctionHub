@@ -1,13 +1,12 @@
-node_modules
-dist
-dist-ssr
+node_modules/
+dist/
+.netlify/
 .env
-.env.local
-.env.*.local
-*.local
-.DS_Store
-.netlify
-.firebase
-firebase-debug.log
-serviceAccountKey.json
-*.tsbuildinfo
+.env.*
+!.env.example
+# Never commit Google service-account keys.
+*.json.key
+*-key.json
+service-account*.json
+thefunctionhub-*.json
+*.pem

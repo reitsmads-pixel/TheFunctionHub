@@ -1,53 +1,86 @@
-import { Route, Routes } from 'react-router-dom'
-import Layout from './components/Layout'
-import ProtectedRoute from './components/ProtectedRoute'
-import Home from './pages/Home'
-import Browse from './pages/Browse'
-import Categories from './pages/Categories'
-import VendorDetail from './pages/VendorDetail'
-import Pricing from './pages/Pricing'
-import ListYourBusiness from './pages/ListYourBusiness'
-import SignIn from './pages/SignIn'
-import Admin from './pages/Admin'
-import DashboardLayout from './pages/dashboard/DashboardLayout'
-import Overview from './pages/dashboard/Overview'
-import ListingEditor from './pages/dashboard/ListingEditor'
-import Enquiries from './pages/dashboard/Enquiries'
-import Billing from './pages/dashboard/Billing'
-import { About, Contact, Faq, NotFound, PlanningGuide, Terms } from './pages/Static'
+import { useEffect, useState } from 'react';
+import { api } from './api';
+import { SignIn } from './pages/SignIn';
+import { Home } from './pages/Home';
+import { Setup } from './pages/Setup';
+import { clearSession, loadSession, type Session } from './session';
 
-export default function App() {
+export interface Me {
+  email: string;
+  enterprise: string | null;
+}
+
+export function App() {
+  const [session, setSession] = useState<Session | null>(loadSession);
+  const [me, setMe] = useState<Me | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const onSignedOut = () => {
+      setSession(null);
+      setMe(null);
+    };
+    window.addEventListener('signed-out', onSignedOut);
+    return () => window.removeEventListener('signed-out', onSignedOut);
+  }, []);
+
+  // Sign out automatically when the Google token expires.
+  useEffect(() => {
+    if (!session) return;
+    const timer = window.setTimeout(() => {
+      clearSession();
+      setSession(null);
+      setMe(null);
+    }, session.expiresAt - Date.now() - 30_000);
+    return () => window.clearTimeout(timer);
+  }, [session]);
+
+  // Ask the server who we are: this is where the allowlist is enforced.
+  useEffect(() => {
+    if (!session) return;
+    setError('');
+    api<Me>('me')
+      .then(setMe)
+      .catch((e: Error) => setError(e.message));
+  }, [session]);
+
+  const signOut = () => {
+    clearSession();
+    setSession(null);
+    setMe(null);
+    setError('');
+  };
+
+  if (!session) return <SignIn onSignedIn={setSession} />;
+
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="browse" element={<Browse />} />
-        <Route path="categories" element={<Categories />} />
-        <Route path="supplier/:slug" element={<VendorDetail />} />
-        <Route path="pricing" element={<Pricing />} />
-        <Route path="list-your-business" element={<ListYourBusiness />} />
-        <Route path="signin" element={<SignIn />} />
-        <Route path="about" element={<About />} />
-        <Route path="contact" element={<Contact />} />
-        <Route path="planning-guide" element={<PlanningGuide />} />
-        <Route path="faq" element={<Faq />} />
-        <Route path="terms" element={<Terms />} />
-
-        <Route element={<ProtectedRoute />}>
-          <Route path="dashboard" element={<DashboardLayout />}>
-            <Route index element={<Overview />} />
-            <Route path="listing" element={<ListingEditor />} />
-            <Route path="enquiries" element={<Enquiries />} />
-            <Route path="billing" element={<Billing />} />
-          </Route>
-        </Route>
-
-        <Route element={<ProtectedRoute adminOnly />}>
-          <Route path="admin" element={<Admin />} />
-        </Route>
-
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
-  )
+    <div className="shell">
+      <header className="topbar">
+        <a className="brand" href="/">
+          Preform Tablets
+        </a>
+        <div className="who">
+          <span className="email">{session.email}</span>
+          <button className="link" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
+      </header>
+      <main className="content">
+        {error ? (
+          <div className="card error">
+            <h2>Access denied</h2>
+            <p>{error}</p>
+            <button onClick={signOut}>Use a different account</button>
+          </div>
+        ) : !me ? (
+          <p className="muted">Checking access…</p>
+        ) : window.location.pathname === '/setup' ? (
+          <Setup me={me} />
+        ) : (
+          <Home me={me} />
+        )}
+      </main>
+    </div>
+  );
 }

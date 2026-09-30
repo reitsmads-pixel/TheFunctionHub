@@ -1,4 +1,2 @@
 User-agent: *
-Allow: /
-
-Sitemap: https://www.thefunctionhubsa.co.za/sitemap.xml
+Disallow: /
